@@ -1,0 +1,200 @@
+pragma solidity ^0.8.0;
+interface IERC20 {
+    
+    function totalSupply() external view returns(uint256);
+    
+    function balanceOf(address account) external view returns(uint256);
+    
+    function transfer(address recipient, uint256 amount) external view returns(uint256);
+    
+    function alloance(address owner, address recipient) external view returns(uint256);
+    
+    function approve(address spender, uint256 amount) external returns(bool);
+    
+    function transferFrom(address sender, address recipient, uint256 amount) external returns(bool);
+    
+    event Transfer(address indexed owner, addresss indexed recipient, uint256 value);
+    
+    event Aproval(address indexed owner, addresss indexed recipient, uint256 value);
+    
+}
+/** Q1 Anyone can get token by paying ether 
+ * 
+ */
+ contract ERC20 is IERC20{
+     
+    mapping(address => uint256) private _balances;
+    
+    //       owner         spender   allowance
+    mapping(address =>mapping(address => uint256)) private _allowance;
+       
+    // the amount of token in existance
+       uint256 private _totalSupply;
+       uint256 tMoney;
+       uint256 numTokens;
+       uint256 price;
+// owner
+       address public owner;
+       string public name;
+       string public symbol;
+       constructor () public{
+    name = "TokenA";
+    symbol = "AAA";
+    decimals = 18;
+    owner = msg.sender;
+    ContractAddress = address(this);
+    emit TokenDetails(name, symbol,decimals, owner, contractAddress);
+    
+    //100 tokens to be generated
+    _tokenSupply = 100 * 10**decimals;//exp formula for decimals
+    // Transfer total suply to owner
+    _balances[owner] = _totalSupply;
+    
+    //fire an event in case of token Transfer
+    //emit Transfer(address(this),owner,_totalSupply);
+
+    function totalSupply()public view override returns(uint256){
+          return _totalSupply;
+    
+    }
+    
+    // get token details
+    
+    function get Details()public view returns(
+        string memory Name, 
+        string memory Symbol, 
+        uint Decimals, 
+        address Owner,
+        address ContractAddress)
+    {
+        return (name, symbol, decimals, owner, contractAddress);
+    }
+    
+    
+    
+    
+    
+    
+    /** Balance of owner*/
+    function balanceOf(address  account) public view virtual override returns (uint256){
+          return _balances[account];
+    }
+    
+    // transfer
+    function transfer(address recipient, uint amount)public virtual override returns(bool){
+        
+        address sender = msg.sender;
+        require(sender != address(0), "sender is not valid address");
+        require(recipient != address(0), "recipient is not valid address");
+        require(_balances[sender] > amount,"insufficient balance");
+        
+      _balances[sender] -= amount; 
+      _balances[recipient] += amount;
+      
+        emit Transfer(sender, recipient, amount);
+        return true;
+    }
+    
+    //approve
+    
+    function approve(address spender, uint amount)public virtual override returns(bool){
+        address tokenOwner = msg.sender;
+        
+        require(msg.sender == owner,"unauthorized call");
+        require(_balances[owner] > amount,"insufficient funds");
+        require(tokenOwner != address(0), "tokenOwner is not valid address");
+        require(spender != address(0), "spender is not valid address");
+        
+        _allowances[tokenOwner][spender] = amount;
+        emit Approval(tokenOwner,spender,amount);
+        return true;
+    }
+    
+    // allowance
+    function allowance(address tokenOwner, address spender)public virtual override view returns(uint){
+        return _allowances[tokenOwner][spender];
+    }
+    // transfer from
+    function transferFrom(address tokenOwner, address recipient, uint amount)public virtual override returns(bool){
+       
+        address spender = msg.sender;
+        uint value = _allowances[tokenOwner][spender];
+        require(value > amount,"insufficient funds");
+        require(recipient != address(0), "recipient is not valid address");
+        
+        _allowances[tokenOwner][spender] -= amount;
+        
+        _balances[owner] -= amount;
+        _balances[recipient] += amount;
+        
+        emit Transfer(tokenOwner, recipient, amount);
+        return true;
+        
+    }
+    
+    
+    
+    
+    
+    
+     function buyEther() public payable{
+         require(msg.value >= 0,"money exists");
+         uint tMoney = msg.value;
+         uint numTokens = tMoney/price;
+         _balances[spender] = _numTokens;
+         
+     } 
+     receive() external payable {
+        uint256 tokens = msg.value;
+        token.transfer(msg.sender, tokens);
+        
+// Q2 Add fallback payable method to Issue token based on Ether received. Say 1 Ether = 100 tokens.
+
+ contract tokenBought{
+    
+    address payable owner; 
+    uint public rate;           // rate of token = Ether
+    //uint public fundRais;       //sum of ethers collecting during token sale
+    event logAddress(address);
+    ERC20 token = new ERC20();  // new instance of ERC20 token
+    
+    constructor()payable {
+        owner = payable(msg.sender);
+        rate = 100;
+        emit logAddress(owner);
+    }
+    
+    fallback()external payable{
+        buyToken();
+    }
+    receive() external payable{
+        buyToken();
+    }
+    
+    %%% update token rate
+    function updateTokenRate(uint _newRate) public returns(uint newRate){
+        require(owner == msg.sender,"invalid call");
+        require(_newRate > 0,"should not be Zero");
+        rate = _newRate;
+        
+        return rate;
+    }
+    
+     function buyToken() public payable returns(uint FundsRais){
+        
+        address buyer = msg.sender;
+        uint tokensAllocation = msg.value * rate;
+        fundRais = fundRais + msg.value;
+        
+        require(buyer != address(0), "address must not be Zero");
+        require(msg.value > 1,"to get 100 tokens from 1 ether");
+        
+        token.transfer(buyer,tokensAllocation);
+        owner.transfer(msg.value);
+        
+        emit logaddress(owner);
+        emit logaddress(buyer);
+        return fundRais;
+    }
+    
+}
